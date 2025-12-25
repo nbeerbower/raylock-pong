@@ -1,0 +1,12 @@
+{
+  "name": "nbeerbower/raylock-demo",
+  "version": "0.1.0",
+  "description": "",
+  "author": "",
+  "license": "MIT",
+  "main": "src/index.hml",
+  "dependencies": {
+    "hemlang/raylock": "^0.1.4"
+  },
+  "devDependencies": {}
+}

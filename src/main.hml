@@ -1,0 +1,168 @@
+// Pong - A simple test game using raylock
+import {
+    InitWindow, CloseWindow, WindowShouldClose, SetTargetFPS,
+    BeginDrawing, EndDrawing, ClearBackground,
+    DrawRectangle, DrawCircleFill, DrawText, DrawLine,
+    IsKeyDown, GetFrameTime,
+    WHITE, BLACK, RAYWHITE,
+    KEY_W, KEY_S, KEY_UP, KEY_DOWN, KEY_SPACE, KEY_ESCAPE,
+    IsKeyPressed
+} from "hemlang/raylock";
+
+// Screen dimensions
+let screenWidth = 800;
+let screenHeight = 600;
+
+// Paddle settings
+let paddleWidth = 15;
+let paddleHeight = 100;
+let paddleSpeed = 400.0;
+
+// Ball settings
+let ballRadius = 12;
+let ballSpeedX = 300.0;
+let ballSpeedY = 200.0;
+
+// Game state
+let leftPaddleY: f32 = 250.0;
+let rightPaddleY: f32 = 250.0;
+let ballX: f32 = 400.0;
+let ballY: f32 = 300.0;
+let ballDirX: f32 = 1.0;
+let ballDirY: f32 = 1.0;
+let leftScore = 0;
+let rightScore = 0;
+let gameStarted = 0;
+
+// Initialize window
+InitWindow(screenWidth, screenHeight, "Pong - raylock demo");
+SetTargetFPS(60);
+
+// Main game loop
+while (WindowShouldClose() == 0) {
+    let dt = GetFrameTime();
+
+    // Exit on escape
+    if (IsKeyPressed(KEY_ESCAPE) != 0) {
+        break;
+    }
+
+    // Start game on space
+    if (gameStarted == 0) {
+        if (IsKeyPressed(KEY_SPACE) != 0) {
+            gameStarted = 1;
+        }
+    }
+
+    if (gameStarted != 0) {
+        // Left paddle (W/S)
+        if (IsKeyDown(KEY_W) != 0) {
+            leftPaddleY = leftPaddleY - paddleSpeed * dt;
+        }
+        if (IsKeyDown(KEY_S) != 0) {
+            leftPaddleY = leftPaddleY + paddleSpeed * dt;
+        }
+
+        // Right paddle (Up/Down)
+        if (IsKeyDown(KEY_UP) != 0) {
+            rightPaddleY = rightPaddleY - paddleSpeed * dt;
+        }
+        if (IsKeyDown(KEY_DOWN) != 0) {
+            rightPaddleY = rightPaddleY + paddleSpeed * dt;
+        }
+
+        // Clamp paddles to screen
+        if (leftPaddleY < 0.0) { leftPaddleY = 0.0; }
+        if (leftPaddleY > screenHeight - paddleHeight) { leftPaddleY = screenHeight - paddleHeight; }
+        if (rightPaddleY < 0.0) { rightPaddleY = 0.0; }
+        if (rightPaddleY > screenHeight - paddleHeight) { rightPaddleY = screenHeight - paddleHeight; }
+
+        // Move ball
+        ballX = ballX + ballSpeedX * ballDirX * dt;
+        ballY = ballY + ballSpeedY * ballDirY * dt;
+
+        // Ball collision with top/bottom
+        if (ballY - ballRadius < 0.0) {
+            ballY = ballRadius;
+            ballDirY = -ballDirY;
+        }
+        if (ballY + ballRadius > screenHeight) {
+            ballY = screenHeight - ballRadius;
+            ballDirY = -ballDirY;
+        }
+
+        // Ball collision with left paddle
+        if (ballX - ballRadius < 30.0 + paddleWidth) {
+            if (ballY > leftPaddleY && ballY < leftPaddleY + paddleHeight) {
+                ballX = 30.0 + paddleWidth + ballRadius;
+                ballDirX = -ballDirX;
+                // Add some variation based on where it hit
+                let hitPos = (ballY - leftPaddleY) / paddleHeight;
+                ballDirY = (hitPos - 0.5) * 2.0;
+            }
+        }
+
+        // Ball collision with right paddle
+        if (ballX + ballRadius > screenWidth - 30.0 - paddleWidth) {
+            if (ballY > rightPaddleY && ballY < rightPaddleY + paddleHeight) {
+                ballX = screenWidth - 30.0 - paddleWidth - ballRadius;
+                ballDirX = -ballDirX;
+                let hitPos2 = (ballY - rightPaddleY) / paddleHeight;
+                ballDirY = (hitPos2 - 0.5) * 2.0;
+            }
+        }
+
+        // Scoring
+        if (ballX < 0.0) {
+            rightScore = rightScore + 1;
+            ballX = 400.0;
+            ballY = 300.0;
+            ballDirX = 1.0;
+            ballDirY = 1.0;
+        }
+        if (ballX > screenWidth) {
+            leftScore = leftScore + 1;
+            ballX = 400.0;
+            ballY = 300.0;
+            ballDirX = -1.0;
+            ballDirY = -1.0;
+        }
+    }
+
+    // Draw
+    BeginDrawing();
+    ClearBackground(BLACK);
+
+    // Center line
+    let lineY = 0;
+    while (lineY < screenHeight) {
+        DrawRectangle(divi(screenWidth, 2) - 2, lineY, 4, 20, WHITE);
+        lineY = lineY + 40;
+    }
+
+    // Paddles
+    let leftPaddleYi: i32 = leftPaddleY;
+    let rightPaddleYi: i32 = rightPaddleY;
+    DrawRectangle(30, leftPaddleYi, paddleWidth, paddleHeight, WHITE);
+    DrawRectangle(screenWidth - 30 - paddleWidth, rightPaddleYi, paddleWidth, paddleHeight, WHITE);
+
+    // Ball
+    let bxi: i32 = ballX;
+    let byi: i32 = ballY;
+    DrawCircleFill(bxi, byi, ballRadius, WHITE);
+
+    // Scores
+    DrawText("" + leftScore, divi(screenWidth, 2) - 50, 20, 40, WHITE);
+    DrawText("" + rightScore, divi(screenWidth, 2) + 30, 20, 40, WHITE);
+
+    // Instructions
+    if (gameStarted == 0) {
+        DrawText("Press SPACE to start", divi(screenWidth, 2) - 120, divi(screenHeight, 2), 20, WHITE);
+        DrawText("W/S - Left Paddle    UP/DOWN - Right Paddle", divi(screenWidth, 2) - 200, divi(screenHeight, 2) + 30, 16, WHITE);
+    }
+
+    EndDrawing();
+}
+
+CloseWindow();
+print("Thanks for playing!");

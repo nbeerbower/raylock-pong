@@ -1,0 +1,85 @@
+// Input Demo - Keyboard and mouse input example
+// Move a ball with arrow keys, click to teleport
+
+// Import everything we need from raylib
+import {
+    // Functions
+    InitWindow, CloseWindow, WindowShouldClose, SetTargetFPS, GetFPS, GetFrameTime,
+    BeginDrawing, EndDrawing, ClearBackground,
+    DrawCircle, DrawRectangleLines, DrawText,
+    IsKeyDown, IsMouseButtonPressed, GetMouseX, GetMouseY,
+    // Colors
+    RAYWHITE, RED, GREEN, DARKGRAY, BLACK,
+    // Keys
+    KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT,
+    // Mouse
+    MOUSE_BUTTON_LEFT
+} from "../src/raylib.hml";
+
+let screenWidth = 800;
+let screenHeight = 450;
+
+InitWindow(screenWidth, screenHeight, "Hemlock + Raylib - Input Demo");
+SetTargetFPS(60);
+
+// Ball properties
+let ballX: f32 = 400.0;
+let ballY: f32 = 225.0;
+let ballRadius: f32 = 25.0;
+let speed: f32 = 300.0;
+
+while (WindowShouldClose() == 0) {
+    // Get delta time for smooth movement
+    let dt = GetFrameTime();
+
+    // Keyboard input - move the ball
+    if (IsKeyDown(KEY_UP) != 0) {
+        ballY = ballY - speed * dt;
+    }
+    if (IsKeyDown(KEY_DOWN) != 0) {
+        ballY = ballY + speed * dt;
+    }
+    if (IsKeyDown(KEY_LEFT) != 0) {
+        ballX = ballX - speed * dt;
+    }
+    if (IsKeyDown(KEY_RIGHT) != 0) {
+        ballX = ballX + speed * dt;
+    }
+
+    // Keep ball in bounds
+    if (ballX < ballRadius) { ballX = ballRadius; }
+    if (ballX > screenWidth - ballRadius) { ballX = screenWidth - ballRadius; }
+    if (ballY < ballRadius) { ballY = ballRadius; }
+    if (ballY > screenHeight - ballRadius) { ballY = screenHeight - ballRadius; }
+
+    // Mouse input - click to teleport ball
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) != 0) {
+        let mx: f32 = GetMouseX();
+        let my: f32 = GetMouseY();
+        ballX = mx;
+        ballY = my;
+    }
+
+    // Draw
+    BeginDrawing();
+    ClearBackground(RAYWHITE);
+
+    // Draw boundary
+    DrawRectangleLines(10, 10, screenWidth - 20, screenHeight - 20, DARKGRAY);
+
+    // Draw the ball
+    let bx: i32 = ballX;
+    let by: i32 = ballY;
+    DrawCircle(bx, by, ballRadius, RED);
+
+    // Instructions
+    DrawText("Arrow keys to move", 20, 30, 20, BLACK);
+    DrawText("Click to teleport", 20, 55, 20, BLACK);
+    DrawText(`Ball: (${bx}, ${by})`, 20, 80, 16, DARKGRAY);
+    DrawText(`FPS: ${GetFPS()}`, screenWidth - 80, 10, 16, GREEN);
+
+    EndDrawing();
+}
+
+CloseWindow();
+print("Input demo closed!");

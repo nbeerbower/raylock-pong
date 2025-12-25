@@ -1,0 +1,50 @@
+// Hello Window - Basic raylib example in Hemlock
+// Demonstrates: window creation, game loop, drawing shapes and text
+
+// Import everything we need from raylib
+import {
+    // Functions
+    InitWindow, CloseWindow, WindowShouldClose, SetTargetFPS, GetFPS,
+    BeginDrawing, EndDrawing, ClearBackground,
+    DrawRectangle, DrawCircle, DrawText,
+    IsKeyPressed,
+    // Colors
+    RAYWHITE, RED, GREEN, BLUE, BLACK,
+    // Keys
+    KEY_ESCAPE
+} from "../src/raylib.hml";
+
+// Initialize window
+let screenWidth = 800;
+let screenHeight = 450;
+
+InitWindow(screenWidth, screenHeight, "Hemlock + Raylib - Hello Window");
+SetTargetFPS(60);
+
+// Main game loop
+while (WindowShouldClose() == 0) {
+    // Update
+    if (IsKeyPressed(KEY_ESCAPE) != 0) {
+        break;
+    }
+
+    // Draw
+    BeginDrawing();
+
+    ClearBackground(RAYWHITE);
+
+    // Draw some shapes
+    DrawRectangle(100, 100, 200, 100, RED);
+    DrawRectangle(500, 100, 200, 100, GREEN);
+    DrawCircle(400, 300, 50.0, BLUE);
+
+    // Draw text
+    DrawText("Hello from Hemlock + Raylib!", 240, 20, 20, BLACK);
+    DrawText("FPS: " + GetFPS(), 10, 10, 20, BLACK);
+    DrawText("Press ESC to exit", 10, 420, 16, BLACK);
+
+    EndDrawing();
+}
+
+CloseWindow();
+print("Window closed!");
